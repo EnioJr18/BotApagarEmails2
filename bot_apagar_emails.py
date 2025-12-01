@@ -1,73 +1,80 @@
 import time
 import pyautogui
+import subprocess
 
-def apagar_emails():
-    pyautogui.click(x=757, y=261)
-    time.sleep(2)
-    pyautogui.click(x=351, y=211)
+pyautogui.PAUSE = 1.0
+
+def abrir_chrome_perfil(perfil_nome):
+    print(f"--- Abrindo Gmail no perfil: {perfil_nome} ---")
+    url = "https://mail.google.com"
+    try:
+        subprocess.Popen(f'start chrome --profile-directory="{perfil_nome}" "{url}"', shell=True)
+        time.sleep(9) 
+    except Exception as e:
+        print(f"Erro: {e}")
+
+def apagar_aba(nome_aba, x_aba, y_aba, x_select_all, y_select_all):
+    print(f" > Indo para aba: {nome_aba}...")
+    
+    pyautogui.click(x=x_aba, y=y_aba)
+    time.sleep(3) 
+    
+    print(" > Selecionando e-mails...")
+    pyautogui.click(x=x_select_all, y=y_select_all)
     time.sleep(1)
-    pyautogui.click(x=542, y=218)
-    time.sleep(1.5)
-    pyautogui.click(x=1030, y=283)
-    time.sleep(0.8)
-    pyautogui.click(x=351, y=211)
-    time.sleep(0.8)
-    pyautogui.click(x=542, y=218)
-    time.sleep(1.5)
-    pyautogui.click(x=1303, y=301)
-    time.sleep(0.8)
-    pyautogui.click(x=351, y=211)
-    time.sleep(0.8)
-    pyautogui.click(x=542, y=218)
-    time.sleep(6)
-    pyautogui.click(x=501, y=289)
-
-
-def funcao_conta_2():
-    time.PAUSE = 0.8
-    time.sleep(6) 
-    pyautogui.press('win')
-    pyautogui.write('Chrome')
+    
+    print(" > Apagando...")
+    pyautogui.press('delete') 
+    # Se o botão delete do teclado não funcionar, descomente a linha abaixo e coloque a coordenada da lixeira
+    pyautogui.click(x=551, y=217) 
+    
+    time.sleep(1)
     pyautogui.press('enter')
-    time.sleep(3)
-    pyautogui.click(x=1686, y=189)
-    time.sleep(3)
-    pyautogui.click(x=1879, y=148)
-    time.sleep(1.5)
-    pyautogui.click(x=1543, y=622)
-    time.sleep(3)
+    time.sleep(2)
 
-def funcao_conta_1():
-    time.PAUSE = 0.8 
-    time.sleep(6)
-    pyautogui.press('win')
-    pyautogui.write('Chrome')
-    pyautogui.press('enter')
-    time.sleep(3)
-    pyautogui.click(x=1686, y=189)
-    time.sleep(3)
-
-
-def selecionar_conta_email():
+def main():
+    # --- CONFIGURAÇÃO 1: PERFIS ---
     contas = {
-        "eniojr100@gmail.com": funcao_conta_1,
-        "eniojunior111@gmail.com": funcao_conta_2,
+        "eniojr100@gmail.com": "Default",
+        "eniojunior111@gmail.com": "Profile 2" 
+    }
+    
+    # Coordenada daquele quadradinho mestre que seleciona todos os e-mails da página
+    # (Ele fica no topo esquerdo, acima da lista de e-mails)
+    COORD_SELECT_ALL_X = 363  # <--- PREENCHA
+    COORD_SELECT_ALL_Y = 217  # <--- PREENCHA
+    
+    # Coordenadas das Abas (onde você clica para mudar de categoria)
+    abas = {
+        #"Nome" : (000, 000),
+        "Social":     (1052, 271), # <--- PREENCHA O X e Y da aba Social
+        "Promoções":  (809, 265), # <--- PREENCHA O X e Y da aba Promoções
+        "Atualizações": (1379, 261) # <--- PREENCHA O X e Y da aba Atualizações
     }
 
-    print("Contas disponíveis:")
-    for conta in contas:
-        print(f"- {conta}")
+    email = input("Digite o e-mail: ").strip()
 
-    conta_digitada = input("Digite o e-mail da conta desejada: ").strip()
-
-    if conta_digitada in contas:
-        print(f"Você selecionou: {conta_digitada}")
-        contas[conta_digitada]()  # Chama a função correspondente
-        return conta_digitada
-    else:
-        print("Conta não encontrada. Tente novamente.")
-
+    if email in contas:
+        abrir_chrome_perfil(contas[email])
+        print("✅ E-mail encontrado. Iniciando processo de apagar e-mails...\n")
+        time.sleep(2.5)
         
-    
-selecionar_conta_email()
-apagar_emails()
+        for nome_aba, coords in abas.items():
+            if coords[0] != 0: 
+                apagar_aba(
+                    nome_aba, 
+                    coords[0], 
+                    coords[1], 
+                    COORD_SELECT_ALL_X, 
+                    COORD_SELECT_ALL_Y
+                )
+            else:
+                print(f"Pulei {nome_aba} (Coordenadas não preenchidas)")
+                
+        print("\n✅ Finalizado!")
+    else:
+        print("❌ E-mail não encontrado.")
+
+
+if __name__ == "__main__":
+    main()
